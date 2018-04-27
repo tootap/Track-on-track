@@ -8,25 +8,19 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.preference.PreferenceManager;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.View;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,9 +32,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -50,7 +41,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker currentLocationMarker;
     double currentLatitude;
     double currentLongitude;
+    LatLng lastLocation;
     private static MapsActivity inst;
+    private int mCurrRotation = 0;
 
     // SMS variables
     private static final int PERMISSION_ALL = 1;
@@ -82,7 +75,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) | (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) | (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED)){
             getPermissions();
         }
+
     }
+
 
     // onMapReady - deploys when map is done loading
     @Override
@@ -90,8 +85,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Get the last known location
-        //double currentLatitude = 40.4273703;
-        //double currentLongitude = -86.9135036;
+       // currentLatitude = 40.4273703;
+       //currentLongitude = -86.9135036;
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -99,17 +94,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         else {
 
-            //Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+            //  `Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
             //currentLatitude = location.getLatitude();
             //currentLongitude = location.getLongitude();
 
             LocationListener locationListener = new MyLocationListener();
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, locationListener);
+
         }
 
         // Update the current location map marker and camera
         //LatLng west_lafayette = new LatLng(40.4273703,	-86.9135036);
         LatLng currentLocation = new LatLng(currentLatitude, currentLongitude);
+        if(currentLatitude == 0 && currentLongitude == 0){
+            if(lastLocation != null) {
+                currentLocation = lastLocation;
+            }
+        }
+        lastLocation = currentLocation;
+        if(currentLocationMarker != null){
+            currentLocationMarker.remove();
+        }
         currentLocationMarker = mMap.addMarker(new MarkerOptions()
                 .position(currentLocation)
                 .title("Current Location")
@@ -134,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // Gets permissions for each permission in PERMISSIONS array
     public void getPermissions() {
-            String[] PERMISSIONS = {Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_FINE_LOCATION};
+            String[] PERMISSIONS = {Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
             if(!hasPermissions(this, PERMISSIONS)) {
                 requestPermissions(PERMISSIONS, PERMISSION_ALL);
             }
@@ -184,7 +189,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String DEVICE_NUMBER = preferences.getString("device_number", "defualtValue");
 
-            smsManager.sendTextMessage("+1" + DEVICE_NUMBER, null, "<Give me coordinates>", null, null);
+            smsManager.sendTextMessage("+1" + DEVICE_NUMBER, null, "Loc", null, null);
             Toast.makeText(this, "Tracking...", Toast.LENGTH_LONG).show();
         }
     }
@@ -198,29 +203,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Retrieve device name from settings
         String DEVICE_NAME= preferences.getString("device_name", "defualtValue");
 
-        // Update device map marker and camera
-        String requestType = message.split(":")[0];
-        message = message.split(":")[1];
+        if(sender.equals(DEVICE_NUMBER)){
+            // Update device map marker and camera
+            if(message.indexOf(':') != -1 ){
+                String requestType = message.split(":")[0];
+                message = message.split(":")[1];
 
-        // But only if the incoming SMS is from the device and a location data response
-        if(sender.equals(DEVICE_NUMBER) && requestType.equals("loc")) {
-            float lat = Float.parseFloat(message.split(",")[0]);
-            float lng = Float.parseFloat(message.split(",")[1]);
-            LatLng trackerLocation = new LatLng(lat, lng);
-            if(deviceMarker != null) {
-                deviceMarker.remove();
+
+                // But only if the incoming SMS is from the device and a location data response
+                if (requestType.equals("loc")) {
+                    float lat = Float.parseFloat(message.split(",")[0]);
+                    float lng = Float.parseFloat(message.split(",")[1]);
+                    LatLng trackerLocation = new LatLng(lat, lng);
+                    if (deviceMarker != null) {
+                        deviceMarker.remove();
+                    }
+                    deviceMarker = mMap.addMarker(new MarkerOptions().position(trackerLocation).title(DEVICE_NAME));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(trackerLocation));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(trackerLocation, 15.0f));
+                } else if (requestType.equals("err")) {
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                }
             }
-            deviceMarker = mMap.addMarker(new MarkerOptions().position(trackerLocation).title(DEVICE_NAME));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(trackerLocation));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(trackerLocation, 15.0f));
         }
     }
 
-    // updates the map camera to the user's current location - not yet implemented
+    // Re-centers the map camera to the user's current location
     public void updateCurrentLocationCamera(View view){
         LatLng currentLocation = new LatLng(currentLatitude, currentLongitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15.0f));
+
+        // Rotate the button
+        Button button = findViewById(R.id.current_location_button);
+        mCurrRotation %= 360;
+        float fromRotation = mCurrRotation;
+        float toRotation = mCurrRotation += 360;
+
+        final RotateAnimation rotateAnim = new RotateAnimation(
+                fromRotation, toRotation, button.getWidth()/2, button.getHeight()/2);
+
+        rotateAnim.setDuration(750); // Use 0 ms to rotate instantly
+        rotateAnim.setFillAfter(true); // Must be true or the animation will reset
+
+        button.startAnimation(rotateAnim);
     }
 
     // converts a vector to a bitmap for the google maps current location marker
@@ -239,16 +265,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // Listener class to get location updates and update the map marker
     private class MyLocationListener implements LocationListener {
+        int flag = 0;
+
         @Override
         public void onLocationChanged(Location loc) {
+
             // Get the current longitude and latitude
             currentLongitude = loc.getLongitude();
             currentLatitude = loc.getLatitude();
-            //Log.v(TAG, ""+currentLongitude);
-            //Log.v(TAG, ""+currentLatitude);
-
+            //Log.d("LONGITUDE:", Double.toString(currentLongitude));
+            //Log.d("LATITUDE:", Double.toString(currentLatitude));
             // Update the current location map marker and camera
             LatLng currentLocation = new LatLng(currentLatitude, currentLongitude);
+
             if(currentLocationMarker != null) {
                 currentLocationMarker.remove();
             }
@@ -256,6 +285,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .position(currentLocation)
                     .title("Current Location")
                     .icon(bitmapDescriptorFromVector(MapsActivity.this)));
+
+
+            //currentLocationMarker.setPosition(currentLocation);
+            if(flag == 0) {
+               mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+               mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 17.0f));
+                flag = 1;
+            }
         }
 
         @Override

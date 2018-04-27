@@ -19,9 +19,11 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_current_location_map_marker" />
+                            <entry key="height" value="800" />
+                            <entry key="outputName" value="ic_current_location_button" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\kaise\Desktop\Track-On-Track-App\app\src\main\res\current-location-map-marker.svg" />
+                            <entry key="sourceFile" value="C:\Users\kaise\Desktop\Track-On-Track-App\app\src\main\res\current-location-button.svg" />
+                            <entry key="width" value="300" />
                           </map>
                         </option>
                       </PersistentState>

@@ -4,7 +4,7 @@
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
     <EditTextPreference
         android:capitalize="words"
-        android:defaultValue="765-555-1234"
+        android:defaultValue="@string/device_number"
         android:inputType="textCapWords"
         android:key="device_number"
         android:maxLines="1"

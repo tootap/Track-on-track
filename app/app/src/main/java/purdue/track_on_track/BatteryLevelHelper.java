@@ -23,9 +23,6 @@ public class BatteryLevelHelper
             case 3:
                 resIdOfImage = R.drawable.ic_battery_level_indicator_threshold_3;
                 break;
-            case 4:
-                resIdOfImage = R.drawable.ic_battery_level_indicator_threshold_4;
-                break;
         }
     }
 

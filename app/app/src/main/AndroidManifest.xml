@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COURSE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
@@ -32,6 +33,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
+            android:screenOrientation="portrait"
             android:name=".MapsActivity"
             android:label="Track-On-Track"
             android:theme="@style/SplashTheme">
@@ -42,6 +44,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:screenOrientation="portrait"
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MapsActivity">
@@ -50,6 +53,7 @@
                 android:value="purdue.track_on_track.MapsActivity" />
         </activity>
         <activity
+            android:screenOrientation="portrait"
             android:name=".BluetoothActivity"
             android:label="@string/title_activity_bluetooth"
             android:parentActivityName=".MapsActivity"

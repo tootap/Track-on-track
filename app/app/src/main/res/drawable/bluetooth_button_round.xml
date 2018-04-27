@@ -3,7 +3,7 @@
     <item
         android:state_focused="true"
         android:state_pressed="true"
-        android:drawable="@drawable/ic_bluetooth_round_pressed" />
+        android:drawable="@drawable/ic_bluetooth_round" />
 
     <item
         android:state_focused="false"

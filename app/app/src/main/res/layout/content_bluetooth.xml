@@ -15,33 +15,23 @@
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/track-button"
         android:layout_marginBottom="16dp"
-        android:layout_marginEnd="33dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/buzzer_button_round"
+        android:onClick="sendBluetoothMessageSpeaker"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/signal-indicator-1"
         android:layout_width="350dp"
         android:layout_height="350dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         app:layout_constraintBottom_toTopOf="@+id/buzzer-button2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:onClick="onSignalClick"
-        android:text="Signal Strength"
-        app:layout_constraintBottom_toTopOf="@+id/signal-indicator-1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -54,9 +44,10 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="75dp"
         android:fontFamily="Helvetica"
+        android:gravity="center"
         android:textColor="#FFFFFF"
         android:textSize="100sp"
-        android:gravity="center"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/signal-indicator-1"
         app:layout_constraintEnd_toEndOf="@+id/signal-indicator-1"
         app:layout_constraintStart_toStartOf="@+id/signal-indicator-1"
@@ -64,11 +55,14 @@
 
     <ImageView
         android:id="@+id/battery_indicator"
-        android:layout_width="150dp"
+        android:layout_width="120dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="33dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/signal-indicator-1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
@@ -79,11 +73,40 @@
         android:layout_marginEnd="50dp"
         android:layout_marginStart="50dp"
         android:fontFamily="Helvetica"
+        android:gravity="center_horizontal"
         android:textColor="#dc3a26"
         android:textSize="25sp"
-        android:gravity="center_horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/button2"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/battery_indicator"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintHorizontal_bias="0.454"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/signalStrengthButton"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:onClick="sendBluetoothMessageSignalStrength"
+        app:layout_constraintBottom_toTopOf="@+id/buzzer-button2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/batteryLevel"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:onClick="sendBluetoothMessageBatteryStrength"
+        app:layout_constraintBottom_toTopOf="@+id/signalStrengthButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
