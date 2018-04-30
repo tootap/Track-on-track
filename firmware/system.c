@@ -11,4 +11,7 @@ void clock_init() {
     // CSCTL2 NOP      MCLK and SMCLK use DCO
     CSCTL3 = 0x03;  // SMCLK not divided SMCLK = 5.33 MHz
                     // MCLK divided by 8 MCLK  = 666.25 KHz
+                    //
+    //PJDIR != 0x40;
+    //PJOUT &= ~0x40; // Debug led
 }
