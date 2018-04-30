@@ -211,7 +211,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                 // But only if the incoming SMS is from the device and a location data response
-                if (requestType.equals("loc")) {
+                if (requestType.equals("locc")) {
                     float lat = Float.parseFloat(message.split(",")[0]);
                     float lng = Float.parseFloat(message.split(",")[1]);
                     LatLng trackerLocation = new LatLng(lat, lng);
@@ -221,7 +221,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     deviceMarker = mMap.addMarker(new MarkerOptions().position(trackerLocation).title(DEVICE_NAME));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(trackerLocation));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(trackerLocation, 15.0f));
-                } else if (requestType.equals("err")) {
+                    Toast.makeText(this, "Used Cell Assist", Toast.LENGTH_SHORT).show();
+                }else if (requestType.equals("locg")) {
+                    float lat = Float.parseFloat(message.split(",")[0]);
+                    float lng = Float.parseFloat(message.split(",")[1]);
+                    LatLng trackerLocation = new LatLng(lat, lng);
+                    if (deviceMarker != null) {
+                        deviceMarker.remove();
+                    }
+                    deviceMarker = mMap.addMarker(new MarkerOptions().position(trackerLocation).title(DEVICE_NAME));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(trackerLocation));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(trackerLocation, 15.0f));
+                    Toast.makeText(this, "Used GPS", Toast.LENGTH_SHORT).show();
+                }else if (requestType.equals("err")) {
                     Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                 }
             }
