@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
@@ -211,7 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                 // But only if the incoming SMS is from the device and a location data response
-                if (requestType.equals("locc")) {
+                if (requestType.equals("Locc")) {
                     float lat = Float.parseFloat(message.split(",")[0]);
                     float lng = Float.parseFloat(message.split(",")[1]);
                     LatLng trackerLocation = new LatLng(lat, lng);
@@ -222,10 +223,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(trackerLocation));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(trackerLocation, 15.0f));
                     Toast.makeText(this, "Used Cell Assist", Toast.LENGTH_SHORT).show();
-                }else if (requestType.equals("locg")) {
-                    float lat = Float.parseFloat(message.split(",")[0]);
-                    float lng = Float.parseFloat(message.split(",")[1]);
-                    LatLng trackerLocation = new LatLng(lat, lng);
+                }else if (requestType.equals("Locg")) {
+                    String lat = message.split(",")[0];
+                    String lng = message.split(",")[2];
+                    String lat_min;
+                    String lat_sec;
+                    String lng_min;
+                    String lng_sec;
+                    float lat_sec_f;
+                    float lng_sec_f;
+                    String lat_s;
+                    String lng_s;
+
+                    lat_min = lat.substring(0,2) + ".";
+                    lat_sec = lat.substring(2, 4) + lat.substring(5, lat.length());
+                    lng_min = lng.substring(0,3) + ".";
+                    lng_sec = lng.substring(3, 5) + lng.substring(6, lng.length());
+
+                    Log.d("lat_sec", lat_sec);
+                    Log.d("lng_sec", lng_sec);
+
+                    lat_sec_f = Math.round(Float.parseFloat(lat_sec.trim()) / 60);
+                    lng_sec_f = Math.round(Float.parseFloat(lng_sec.trim()) / 60);
+                    String lat_sec_s = Float.toString(lat_sec_f);
+                    String lng_sec_s = Float.toString(lng_sec_f);
+
+
+                    lat_s = lat_min + lat_sec_s.substring(0, lat_sec_s.length() - 2);
+                    lng_s = lng_min + lng_sec_s.substring(0, lng_sec_s.length() - 2);
+
+                    Log.d("lat_s", lat_s);
+                    Log.d("lng_s", lng_s);
+
+                    String lat_direction = message.split(",")[1];
+                    String lng_direction = message.split(",")[3];
+
+                    if(lat_direction.trim().equals("S")){
+                        lat_s = "-" + lat_s;
+                    }
+                    if(lng_direction.trim().equals("W")){
+                        lng_s = "-" + lng_s;
+                    }
+
+                    float lat_f = Float.parseFloat(lat_s.trim());
+                    float lng_f = Float.parseFloat(lng_s.trim());
+                    Log.d("lat_direction", lat_direction);
+                    Log.d("lng_direction", lng_direction);
+                    Log.d("lat", lat);
+                    Log.d("lng", lng);
+
+                    LatLng trackerLocation = new LatLng(lat_f, lng_f);
                     if (deviceMarker != null) {
                         deviceMarker.remove();
                     }
